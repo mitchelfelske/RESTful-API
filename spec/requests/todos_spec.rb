@@ -106,5 +106,37 @@ RSpec.describe 'Todos API', type: :request do
         end
       end
     end
+
+    # Test suit for updating a todo
+    describe 'PUT /todos/:id' do
+      let(:valid_attributes) { { title: 'Learn Node.js API' } }
+
+      context 'when the record exists' do
+        before { put "/todos/#{todo_id}", params: valid_attributes }
+
+        it 'returns no content status code' do
+          expect(response).to have_http_status(204)
+        end
+
+        it 'updates the record' do
+          expect(response.body).to be_empty
+        end
+      end
+
+      context 'when the record does not exist' do
+        # Defines a non existing todo
+        let(:todo_id) { 100 }
+
+        before { put "/todos/#{todo_id}", params: valid_attributes }
+
+        it 'returns resource not found status code' do
+          expect(response).to have_http_status(404)
+        end
+
+        it 'returns a not found message' do
+          expect(response.body).to match(/Couldn't find Todo/)
+        end
+      end
+    end
   end
 end
