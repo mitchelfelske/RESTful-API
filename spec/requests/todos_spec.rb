@@ -138,5 +138,15 @@ RSpec.describe 'Todos API', type: :request do
         end
       end
     end
+
+    # Test suit for deleting a todo
+    describe 'DELETE /todos/:id' do
+      before { delete "/todos/#{todo_id}" }
+
+      it "returns no content status code" do
+        expect(response).to have_http_status(204)
+      end
+
+    end
   end
 end
