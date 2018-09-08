@@ -1,6 +1,6 @@
 class ItemsController < ApplicationController
   before_action :set_todo
-  before_action :set_todo_item, only: [:show]
+  before_action :set_todo_item, only: [:show, :update]
 
   # GET /todos/:todo_id/items
   def index
@@ -16,6 +16,12 @@ class ItemsController < ApplicationController
   def create
     @todo.items.create!(item_params)
     json_response(@todo, :created)
+  end
+
+  # PUT /todos/:todo_id/items/:id
+  def update
+    @item.update(item_params)
+    head :no_content
   end
 
   private
