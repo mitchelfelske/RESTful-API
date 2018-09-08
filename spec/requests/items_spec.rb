@@ -118,4 +118,13 @@ RSpec.describe 'Items API', type: :request do
       end
     end
   end
+
+  # Test suite for deleting a todo item
+  describe 'DELETE /todos/:todo_id/items/:id' do
+    before { delete "/todos/#{todo_id}/items/#{id}" }
+
+    it 'returns no content status code' do
+      expect(response).to have_http_status(204)
+    end
+  end
 end
