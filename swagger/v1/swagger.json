@@ -1,0 +1,93 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "API V1",
+    "version": "v1"
+  },
+  "paths": {
+    "/todos": {
+      "post": {
+        "summary": "Creates a todo",
+        "tags": [
+          "Todo"
+        ],
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "todo",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "created_by": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "created_by"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "todo created"
+          },
+          "422": {
+            "description": "invalid request"
+          }
+        }
+      }
+    },
+    "/todos/{id}": {
+      "get": {
+        "summary": "Retrieves a todo",
+        "tags": [
+          "Todo"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "name found",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "created_by": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "created_by"
+              ]
+            }
+          },
+          "404": {
+            "description": "todo not found"
+          }
+        }
+      }
+    }
+  }
+}
