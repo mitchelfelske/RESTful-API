@@ -1,24 +1,31 @@
-# README
+# Rails RESTful API
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Portfolio showcasing the creation of a Rails RESTful API with:
 
-Things you may want to cover:
+* Authentication with JWT
+* Pagination
+* Rspec requests testing
+* Swagger docs for the created routes
 
-* Ruby version
+## Commands
 
-* System dependencies
+Generate Swagger Docs
 
-* Configuration
+    rake rswag:specs:swaggerize
 
-* Database creation
+Run rspec tests
 
-* Database initialization
+    bundle exec rspec --format documentation
 
-* How to run the test suite
+Run server
 
-* Services (job queues, cache servers, search engines, etc.)
+    rails s
 
-* Deployment instructions
+Access the API
 
-* ...
+    http://localhost:3000
+
+Access Swagger docs
+
+    http://localhost:3000/api-docs
+    
