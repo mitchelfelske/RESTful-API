@@ -5,28 +5,20 @@
     "version": "v1"
   },
   "paths": {
-    "/todos/{id}": {
+    "/todos": {
       "get": {
-        "summary": "Retrieves a Todo",
+        "summary": "Retrieves all todos",
         "tags": [
           "Todo"
         ],
         "produces": [
           "application/json"
         ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "string",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
-            "description": "Todo found",
+            "description": "Todos list retrieved successfully",
             "schema": {
-              "type": "object",
+              "type": "array",
               "properties": {
                 "title": {
                   "type": "string"
@@ -40,14 +32,9 @@
                 "created_by"
               ]
             }
-          },
-          "404": {
-            "description": "Todo not found"
           }
         }
-      }
-    },
-    "/todos": {
+      },
       "post": {
         "summary": "Creates a Todo",
         "tags": [
@@ -79,10 +66,117 @@
         ],
         "responses": {
           "201": {
-            "description": "Todo created"
+            "description": "Todo created successfully"
           },
           "422": {
             "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/todos/{id}": {
+      "get": {
+        "summary": "Retrieves a Todo",
+        "tags": [
+          "Todo"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Todo retrieved successfully ",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "created_by": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "created_by"
+              ]
+            }
+          },
+          "404": {
+            "description": "Todo not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Updates a Todo",
+        "tags": [
+          "Todo"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "todo",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "created_by": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Todo updated successfully"
+          },
+          "404": {
+            "description": "Todo not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Deletes a Todo",
+        "tags": [
+          "Todo"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Todo deleted successfully"
+          },
+          "404": {
+            "description": "Todo not found"
           }
         }
       }
