@@ -1,152 +1,181 @@
 require 'rails_helper'
+require 'swagger_helper'
 
 RSpec.describe 'Todos API', type: :request do
   #init test data
   let!(:todos) { create_list(:todo, 10) }
   let(:todo_id) { todos.first.id }
 
-  # Test suite for listing all todos
-  describe 'GET /todos' do
-    # make HTTP get request before each example
-    before { get '/todos' }
+  path '/todos' do
+    get 'Retrieves all todos' do
+      tags 'Todo'
+      produces 'application/json'
+      
+      response '200', 'Todos list retrieved successfully' do
+        schema type: :array,
+               properties: {
+                   title: { type: :string },
+                   created_by: { type: :string }
+               },
+               required: [ 'title', 'created_by' ]
 
-    it 'returns request succeeded status code' do
-      expect(response).to have_http_status(200)
-    end
-
-    it 'returns todos' do
-      # 'json' is a custom helper to parse JSON responses
-      expect(json).not_to be_empty
-      expect(json.size).to eq(10)
+        run_test! do
+          expect(json).not_to be_empty
+          expect(json.size).to eq(10)
+        end
+      end
     end
   end
-
+  
   # Test suite for getting a todo
-  describe 'GET /todos/:id' do
-    before { get "/todos/#{todo_id}" }
+  path '/todos/{id}' do
+    get 'Retrieves a Todo' do
+      tags 'Todo'
+      produces 'application/json'
+      parameter name: :id, :in => :path, :type => :string
 
-    context 'when the record exists' do
-      it 'returns request succeeded status code' do
-        expect(response).to have_http_status(200)
+      response '200', 'Todo retrieved successfully ' do
+        schema type: :object,
+               properties: {
+                   title: { type: :string },
+                   created_by: { type: :string }
+               },
+               required: [ 'title', 'created_by' ]
+
+        let(:id) { 1 }
+        run_test! do
+          expect(json).not_to be_empty
+          expect(json['id']).to eq(todo_id)
+        end
       end
 
-      it 'returns the todo' do
-        expect(json).not_to be_empty
-        expect(json['id']).to eq(todo_id)
-      end
-    end
-
-    context 'when the record does not exist' do
-      # Defines a non existing todo
-      let(:todo_id) { 100 }
-
-      it 'returns resource not found status code' do
-        expect(response).to have_http_status(404)
-      end
-
-      it 'returns a not found message' do
-        expect(response.body).to match(/Couldn't find Todo/)
+      response '404', 'Todo not found' do
+        let(:id) { 'invalid' }
+        run_test! do |response|
+          expect(response.body).to match(/Couldn't find Todo/)
+        end
       end
     end
   end
 
   # Test suite for creating a todo
-  describe 'POST /todos' do
+  path '/todos' do
 
-    let(:valid_attributes) { { title: 'Learn Rails API', created_by: 'User_1' } }
+    post 'Creates a Todo' do
+      tags 'Todo'
+      consumes 'application/json'
+      parameter name: :todo, in: :body, schema: {
+          type: :object,
+          properties: {
+              title: { type: :string },
+              created_by: { type: :string }
+          }, required: [ 'title', 'created_by' ]
+      }
 
-    context 'when the request is valid' do
-      before { post '/todos', params: valid_attributes }
+      response '201', 'Todo created successfully' do
+        let(:todo) { { title: 'Learn API Docs with Swagger', created_by: 'User 1' } }
 
-      it 'returns created status code' do
-        expect(response).to have_http_status(201)
-      end
-
-      it 'creates a todo' do
-        expect(json['id']).to eq(11)
-        expect(json['title']).to eq('Learn Rails API')
-        expect(json['created_by']).to eq('User_1')
-      end
-    end
-
-    context 'when the request is invalid' do
-      context 'because all params are missing' do
-        before { post '/todos' }
-
-        it 'returns unprocessable entity status code' do
-          expect(response).to have_http_status(422)
-        end
-
-        it 'returns a validation failure message' do
-          expect(response.body).to match(/Validation failed: Title can't be blank, Created by can't be blank/)
+        run_test! do
+          expect(json['id']).to eq(11)
+          expect(json['title']).to eq('Learn API Docs with Swagger')
+          expect(json['created_by']).to eq('User 1')
         end
       end
 
-      context 'because title is missing' do
-        before { post '/todos', params: { created_by: 'User_1' } }
+      context 'when Title is missing' do
+        response '422', 'Unprocessable Entity' do
+          let(:todo) { { created_by: 'User 1'} }
 
-        it 'returns unprocessable entity status code' do
-          expect(response).to have_http_status(422)
-        end
-
-        it 'returns a validation failure message' do
-          expect(response.body).to match(/Validation failed: Title can't be blank/)
+          run_test! do |response|
+            expect(response.body).to match(/Validation failed: Title can't be blank/)
+          end
         end
       end
 
-      context 'because created by is missing' do
-        before { post '/todos', params: { title: 'Learn Rails API' } }
+      context 'when Created By is missing' do
+        response '422', 'Unprocessable Entity' do
+          let(:todo) { { title: 'Learn API Docs with Swagger'} }
 
-        it 'returns unprocessable entity status code' do
-          expect(response).to have_http_status(422)
+          run_test! do |response|
+            expect(response.body).to match(/Validation failed: Created by can't be blank/)
+          end
         end
+      end
 
-        it 'returns a validation failure message' do
-          expect(response.body).to match(/Validation failed: Created by can't be blank/)
+      context 'when Title and Created By are missing' do
+        response '422', 'Unprocessable Entity' do
+          let(:todo) { }
+
+          run_test! do |response|
+            expect(response.body).to match(/Validation failed: Title can't be blank, Created by can't be blank/)
+          end
         end
       end
     end
+  end
 
-    # Test suit for updating a todo
-    describe 'PUT /todos/:id' do
-      let(:valid_attributes) { { title: 'Learn Node.js API' } }
+  # Test suit for updating a todo
+  path '/todos/{id}' do
 
-      context 'when the record exists' do
-        before { put "/todos/#{todo_id}", params: valid_attributes }
+    put 'Updates a Todo' do
+      tags 'Todo'
+      consumes 'application/json'
+      parameter name: :id, :in => :path, :type => :string
+      parameter name: :todo, in: :body, schema: {
+          type: :object,
+          properties: {
+              title: { type: :string },
+              created_by: { type: :string }
+          }
+      }
+      
+      response '204', 'Todo updated successfully' do
+        let(:todo) { { title: 'Learning Node.js RESTful APIs' } }
+        let(:id) { todo_id }
 
-        it 'returns no content status code' do
-          expect(response).to have_http_status(204)
+        run_test! do |response|
+          expect(response.body).to be_empty
         end
+      end
+      
+      context 'when the record does not exist' do
+        response '404', 'Todo not found' do
+          let(:todo) { { title: 'Learning Node.js RESTful APIs' } }
+          let(:id) { 'invalid' }
 
-        it 'updates the record' do
+          run_test! do |response|
+            expect(response.body).to match(/Couldn't find Todo/)
+          end
+        end
+      end
+    end
+  end
+
+  # Test suit for deleting a todo
+  path '/todos/{id}' do
+
+    delete 'Deletes a Todo' do
+      tags 'Todo'
+      consumes 'application/json'
+      parameter name: :id, :in => :path, :type => :string
+
+      response '204', 'Todo deleted successfully' do
+        let(:id) { todo_id }
+
+        run_test! do |response|
           expect(response.body).to be_empty
         end
       end
 
       context 'when the record does not exist' do
-        # Defines a non existing todo
-        let(:todo_id) { 100 }
+        response '404', 'Todo not found' do
+          let(:id) { 'invalid' }
 
-        before { put "/todos/#{todo_id}", params: valid_attributes }
-
-        it 'returns resource not found status code' do
-          expect(response).to have_http_status(404)
-        end
-
-        it 'returns a not found message' do
-          expect(response.body).to match(/Couldn't find Todo/)
+          run_test! do |response|
+            expect(response.body).to match(/Couldn't find Todo/)
+          end
         end
       end
-    end
-
-    # Test suit for deleting a todo
-    describe 'DELETE /todos/:id' do
-      before { delete "/todos/#{todo_id}" }
-
-      it "returns no content status code" do
-        expect(response).to have_http_status(204)
-      end
-
     end
   end
 end
