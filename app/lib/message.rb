@@ -11,4 +11,8 @@ class Message
     def self.invalid_credentials
         'Invalid credentials'
     end
+
+    def  self.account_created
+        'Account created successfully'
+    end
 end
