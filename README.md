@@ -16,9 +16,9 @@ Access app routes documentation
 
     http://localhost:3000/api-docs
 
-Creates an user account: /signup route
+Creates an user account: /signup
 
-Log in to the app (generates a valid token): /auth/login route
+Log in to the app (generates a valid token): /auth/login
 
 Authorize routes with generated token
 
