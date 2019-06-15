@@ -2,38 +2,64 @@ require 'rails_helper'
 
 RSpec.describe 'Users API', type: :request do
     let(:user) { build(:user) }
-    let(:headers) { valid_headers.except('Authorization') }
-    let(:valid_attributes) do
-        attributes_for(:user, password_confirmation: user.password).to_json
+    let!(:users) { create_list(:user, 10) }
+
+    path '/users' do
+        get 'Retrieves all users' do
+          tags 'User'
+          produces 'application/json'
+                    
+          response '200', 'Users list retrieved successfully' do
+            schema type: :array,
+                   properties: {
+                    name: { type: :string},
+                    email: { type: :string },
+                    password: { type: :string }
+                   }
+    
+            run_test! do            
+              expect(json).not_to be_empty
+              expect(json.size).to eq(10)
+            end
+          end
+        end
     end
 
-    # User signup test suite
-    describe 'POST /signup' do
-        context 'when valid request' do
-            before { post '/signup', params: valid_attributes, headers: headers }
-
-            it 'creates a new user' do
-                expect(response).to have_http_status(201)
-            end 
-
-            it 'returns success message' do
-                expect(json['message']).to match(/Account created successfully/)
+    path '/signup' do
+        post 'Creates an user account' do
+            tags 'Signup'
+            consumes 'application/json'
+            parameter name: :account, in: :body, schema: {
+                type: :object,
+                properties: {
+                    name: { type: :string},
+                    email: { type: :string },
+                    password: { type: :string }
+                }, required: [ 'name', 'email', 'password' ]
+            }
+    
+            response '201', 'User\'s account created successfully' do
+                let(:account) do
+                    {
+                        name: user.name,
+                        email: user.email,
+                        password: user.password,
+                        password_confirmation: user.password
+                    }
+                end
+                    
+                run_test! do
+                    expect(json['message']).to match(/Account created successfully/) 
+                    expect(json['auth_token']).not_to be_nil
+                end
             end
 
-            it 'returns an authentication token' do
-                expect(json['auth_token']).not_to be_nil
-            end
-        end
-
-        context 'when invalid request' do
-            before { post '/signup', params: {}, headers: headers }
-            
-            it 'does not create a new user' do
-                expect(response).to have_http_status(422)
-            end
-
-            it 'returns failure message' do 
-                expect(json['message']).to match(/Validation failed: Password can't be blank, Name can't be blank, Email can't be blank/)
+            response '422', "Invalid user account" do
+                let(:account) { {} }
+                
+                run_test! do
+                    expect(json['message']).to match(/Validation failed: Password can't be blank, Name can't be blank, Email can't be blank/)
+                end
             end
         end
     end

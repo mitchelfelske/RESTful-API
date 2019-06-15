@@ -1,6 +1,11 @@
 class UsersController < ApplicationController
 
-    skip_before_action :authorize_request, only: :create
+    skip_before_action :authorize_request, only: [:create, :index]
+
+    def index 
+        users = User.all
+        json_response(users)
+    end
 
     def create 
         user = User.create!(user_params)

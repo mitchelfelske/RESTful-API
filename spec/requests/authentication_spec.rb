@@ -1,41 +1,47 @@
 require 'rails_helper'
 
 RSpec.describe 'Authentication', type: :request do
-   describe 'POST /auth/login' do
-    # Authentication test suite
-        let(:user)     { create(:user) }
-        let(:headers) { valid_headers.except('Authorization') }
-        let(:valid_credentials) do
-            {
-                email: user.email,
-                password: user.password
-            }.to_json
-        end
-        let(:invalid_credentials) do
-            {
-                email: Faker::Internet.email,
-                password: Faker::Internet.password
-            }.to_json
-        end
+      # Authentication test suite
+    let(:user) { create(:user) }
+        
+    path '/auth/login' do
+        post 'Retrives user\'s token' do
+            tags 'Login'
+            consumes 'application/json'
+            parameter name: :credentials, in: :body, schema: {
+                type: :object,
+                properties: {
+                    email: { type: :string },
+                    password: { type: :string }
+                }, required: [ 'email', 'password' ]
+            }
+    
+            response '200', 'User logged in successfully' do
+                let(:credentials) do
+                    {
+                        email: user.email,
+                        password: user.password
+                    }
+                end
 
-        # returns auth token when request is valid
-        context 'when request is valid' do
-            before { post '/auth/login', params: valid_credentials, headers: headers }
-
-            it 'returns an authentication token' do
-                expect(json['auth_token']).not_to be_nil
+                run_test! do
+                    expect(json['auth_token']).not_to be_nil 
+                end
+            end
+        
+            # returns failure message when request is invalid
+            response '401', "Invalid credentials" do
+                let(:credentials) do
+                    {
+                        email: Faker::Internet.email,
+                        password: Faker::Internet.password
+                    }
+                end
+                            
+                run_test! do
+                    expect(json['message']).to match(/Invalid credentials/)
+                end
             end
         end
-
-        # returns failure message when request is invalid
-        context 'when request is invalid' do
-            before { post '/auth/login', params: invalid_credentials, headers: headers }
-
-            it 'returns a failure message' do
-                expect(json['message']).to match(/Invalid credentials/)
-            end
-        end
-
     end
-
 end
