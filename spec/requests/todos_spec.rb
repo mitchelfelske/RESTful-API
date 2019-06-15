@@ -2,20 +2,27 @@ require 'rails_helper'
 require 'swagger_helper'
 
 RSpec.describe 'Todos API', type: :request do
-  #init test data
+  
+  
+  # todos owner
+  let(:user) { create(:user) }
+
   let!(:todos) { create_list(:todo, 10) }
   let(:todo_id) { todos.first.id }
+
+  # authorize request
+  let('Authorization') { token_generator(user.id)}
 
   path '/todos' do
     get 'Retrieves all todos' do
       tags 'Todo'
       produces 'application/json'
-      
+      security [Bearer: {}]      
+
       response '200', 'Todos list retrieved successfully' do
         schema type: :array,
                properties: {
-                   title: { type: :string },
-                   created_by: { type: :string }
+                   title: { type: :string }
                },
                required: [ 'title', 'created_by' ]
 
@@ -32,6 +39,7 @@ RSpec.describe 'Todos API', type: :request do
     get 'Retrieves a Todo' do
       tags 'Todo'
       produces 'application/json'
+      security [Bearer: {}]
       parameter name: :id, :in => :path, :type => :string
 
       response '200', 'Todo retrieved successfully ' do
@@ -40,7 +48,7 @@ RSpec.describe 'Todos API', type: :request do
                    title: { type: :string },
                    created_by: { type: :string }
                },
-               required: [ 'title', 'created_by' ]
+               required: [ 'title']
 
         let(:id) { 1 }
         run_test! do
@@ -64,6 +72,7 @@ RSpec.describe 'Todos API', type: :request do
     post 'Creates a Todo' do
       tags 'Todo'
       consumes 'application/json'
+      security [Bearer: {}]
       parameter name: :todo, in: :body, schema: {
           type: :object,
           properties: {
@@ -120,6 +129,7 @@ RSpec.describe 'Todos API', type: :request do
     put 'Updates a Todo' do
       tags 'Todo'
       consumes 'application/json'
+      security [Bearer: {}]
       parameter name: :id, :in => :path, :type => :string
       parameter name: :todo, in: :body, schema: {
           type: :object,
@@ -157,6 +167,7 @@ RSpec.describe 'Todos API', type: :request do
     delete 'Deletes a Todo' do
       tags 'Todo'
       consumes 'application/json'
+      security [Bearer: {}]
       parameter name: :id, :in => :path, :type => :string
 
       response '204', 'Todo deleted successfully' do

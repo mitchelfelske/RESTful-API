@@ -4,6 +4,14 @@
     "title": "API V1",
     "version": "v1"
   },
+  "securityDefinitions": {
+    "Bearer": {
+      "description": "Client token for authorization",
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
   "paths": {
     "/todos": {
       "get": {
@@ -14,6 +22,12 @@
         "produces": [
           "application/json"
         ],
+        "security": [
+          {
+            "Bearer": {
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Todos list retrieved successfully",
@@ -21,9 +35,6 @@
               "type": "array",
               "properties": {
                 "title": {
-                  "type": "string"
-                },
-                "created_by": {
                   "type": "string"
                 }
               },
@@ -42,6 +53,12 @@
         ],
         "consumes": [
           "application/json"
+        ],
+        "security": [
+          {
+            "Bearer": {
+            }
+          }
         ],
         "parameters": [
           {
@@ -83,6 +100,12 @@
         "produces": [
           "application/json"
         ],
+        "security": [
+          {
+            "Bearer": {
+            }
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -105,8 +128,7 @@
                 }
               },
               "required": [
-                "title",
-                "created_by"
+                "title"
               ]
             }
           },
@@ -122,6 +144,12 @@
         ],
         "consumes": [
           "application/json"
+        ],
+        "security": [
+          {
+            "Bearer": {
+            }
+          }
         ],
         "parameters": [
           {
@@ -162,6 +190,12 @@
         ],
         "consumes": [
           "application/json"
+        ],
+        "security": [
+          {
+            "Bearer": {
+            }
+          }
         ],
         "parameters": [
           {
