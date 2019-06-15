@@ -36,12 +36,11 @@
               "properties": {
                 "title": {
                   "type": "string"
+                },
+                "created_by": {
+                  "type": "string"
                 }
-              },
-              "required": [
-                "title",
-                "created_by"
-              ]
+              }
             }
           }
         }
@@ -69,14 +68,10 @@
               "properties": {
                 "title": {
                   "type": "string"
-                },
-                "created_by": {
-                  "type": "string"
                 }
               },
               "required": [
-                "title",
-                "created_by"
+                "title"
               ]
             }
           }
@@ -126,10 +121,7 @@
                 "created_by": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "title"
-              ]
+              }
             }
           },
           "404": {
@@ -165,9 +157,6 @@
               "type": "object",
               "properties": {
                 "title": {
-                  "type": "string"
-                },
-                "created_by": {
                   "type": "string"
                 }
               }
