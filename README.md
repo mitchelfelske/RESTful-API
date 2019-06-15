@@ -3,7 +3,7 @@
 Portfolio showcasing the creation of a Rails RESTful API with:
 
 * Authentication with JWT
-* Rspec requests testing
+* Rspec testing
 * Swagger for route docs
 
 ## Run the App
