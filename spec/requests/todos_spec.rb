@@ -2,22 +2,29 @@ require 'rails_helper'
 require 'swagger_helper'
 
 RSpec.describe 'Todos API', type: :request do
-  #init test data
-  let!(:todos) { create_list(:todo, 10) }
+  
+  
+  # todos owner
+  let(:user) { create(:user) }
+
+  let!(:todos) { create_list(:todo, 10, created_by: user.id) }
   let(:todo_id) { todos.first.id }
+
+  # authorize request
+  let('Authorization') { token_generator(user.id)}
 
   path '/todos' do
     get 'Retrieves all todos' do
       tags 'Todo'
       produces 'application/json'
+      security [Bearer: {}]
       
       response '200', 'Todos list retrieved successfully' do
         schema type: :array,
                properties: {
                    title: { type: :string },
                    created_by: { type: :string }
-               },
-               required: [ 'title', 'created_by' ]
+               }
 
         run_test! do
           expect(json).not_to be_empty
@@ -32,6 +39,7 @@ RSpec.describe 'Todos API', type: :request do
     get 'Retrieves a Todo' do
       tags 'Todo'
       produces 'application/json'
+      security [Bearer: {}]
       parameter name: :id, :in => :path, :type => :string
 
       response '200', 'Todo retrieved successfully ' do
@@ -39,8 +47,7 @@ RSpec.describe 'Todos API', type: :request do
                properties: {
                    title: { type: :string },
                    created_by: { type: :string }
-               },
-               required: [ 'title', 'created_by' ]
+               }
 
         let(:id) { 1 }
         run_test! do
@@ -64,50 +71,30 @@ RSpec.describe 'Todos API', type: :request do
     post 'Creates a Todo' do
       tags 'Todo'
       consumes 'application/json'
+      security [Bearer: {}]
       parameter name: :todo, in: :body, schema: {
           type: :object,
           properties: {
-              title: { type: :string },
-              created_by: { type: :string }
-          }, required: [ 'title', 'created_by' ]
+              title: { type: :string }
+          }, required: [ 'title' ]
       }
 
       response '201', 'Todo created successfully' do
-        let(:todo) { { title: 'Learn API Docs with Swagger', created_by: 'User 1' } }
+        let(:todo) { { title: 'Learn API Docs with Swagger' } }
 
         run_test! do
           expect(json['id']).to eq(11)
           expect(json['title']).to eq('Learn API Docs with Swagger')
-          expect(json['created_by']).to eq('User 1')
+          expect(json['created_by']).to eq('1')
         end
       end
 
       context 'when Title is missing' do
         response '422', 'Unprocessable Entity' do
-          let(:todo) { { created_by: 'User 1'} }
+          let(:todo) { { title: nil} }
 
           run_test! do |response|
             expect(response.body).to match(/Validation failed: Title can't be blank/)
-          end
-        end
-      end
-
-      context 'when Created By is missing' do
-        response '422', 'Unprocessable Entity' do
-          let(:todo) { { title: 'Learn API Docs with Swagger'} }
-
-          run_test! do |response|
-            expect(response.body).to match(/Validation failed: Created by can't be blank/)
-          end
-        end
-      end
-
-      context 'when Title and Created By are missing' do
-        response '422', 'Unprocessable Entity' do
-          let(:todo) { }
-
-          run_test! do |response|
-            expect(response.body).to match(/Validation failed: Title can't be blank, Created by can't be blank/)
           end
         end
       end
@@ -120,12 +107,12 @@ RSpec.describe 'Todos API', type: :request do
     put 'Updates a Todo' do
       tags 'Todo'
       consumes 'application/json'
+      security [Bearer: {}]
       parameter name: :id, :in => :path, :type => :string
       parameter name: :todo, in: :body, schema: {
           type: :object,
           properties: {
-              title: { type: :string },
-              created_by: { type: :string }
+              title: { type: :string }
           }
       }
       
@@ -157,6 +144,7 @@ RSpec.describe 'Todos API', type: :request do
     delete 'Deletes a Todo' do
       tags 'Todo'
       consumes 'application/json'
+      security [Bearer: {}]
       parameter name: :id, :in => :path, :type => :string
 
       response '204', 'Todo deleted successfully' do

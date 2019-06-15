@@ -48,8 +48,9 @@ RSpec.configure do |config|
   # Add 'FactoryBot' methods
   config.include FactoryBot::Syntax::Methods
 
-  # Add helper module defined in specs/support for all request specs
-  config.include RequestSpecHelper, type: :request
+  # Add helper module defined in specs/support for all specs
+  config.include RequestSpecHelper
+  config.include ControllerSpecHelper
 
   # Truncate all tables before init tests then use the faster transaction strategy
   config.before(:suite) do

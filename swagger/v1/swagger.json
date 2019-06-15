@@ -4,7 +4,55 @@
     "title": "API V1",
     "version": "v1"
   },
+  "securityDefinitions": {
+    "Bearer": {
+      "description": "Client token for authorization",
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
   "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Retrives user's token",
+        "tags": [
+          "Login"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "credentials",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "email",
+                "password"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User logged in successfully"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
     "/todos": {
       "get": {
         "summary": "Retrieves all todos",
@@ -13,6 +61,12 @@
         ],
         "produces": [
           "application/json"
+        ],
+        "security": [
+          {
+            "Bearer": {
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -26,11 +80,7 @@
                 "created_by": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "title",
-                "created_by"
-              ]
+              }
             }
           }
         }
@@ -43,6 +93,12 @@
         "consumes": [
           "application/json"
         ],
+        "security": [
+          {
+            "Bearer": {
+            }
+          }
+        ],
         "parameters": [
           {
             "name": "todo",
@@ -52,14 +108,10 @@
               "properties": {
                 "title": {
                   "type": "string"
-                },
-                "created_by": {
-                  "type": "string"
                 }
               },
               "required": [
-                "title",
-                "created_by"
+                "title"
               ]
             }
           }
@@ -83,6 +135,12 @@
         "produces": [
           "application/json"
         ],
+        "security": [
+          {
+            "Bearer": {
+            }
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -103,11 +161,7 @@
                 "created_by": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "title",
-                "created_by"
-              ]
+              }
             }
           },
           "404": {
@@ -123,6 +177,12 @@
         "consumes": [
           "application/json"
         ],
+        "security": [
+          {
+            "Bearer": {
+            }
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -137,9 +197,6 @@
               "type": "object",
               "properties": {
                 "title": {
-                  "type": "string"
-                },
-                "created_by": {
                   "type": "string"
                 }
               }
@@ -163,6 +220,12 @@
         "consumes": [
           "application/json"
         ],
+        "security": [
+          {
+            "Bearer": {
+            }
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -177,6 +240,80 @@
           },
           "404": {
             "description": "Todo not found"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Retrieves all users",
+        "tags": [
+          "User"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Users list retrieved successfully",
+            "schema": {
+              "type": "array",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/signup": {
+      "post": {
+        "summary": "Creates an user account",
+        "tags": [
+          "Signup"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "account",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "email",
+                "password"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User's account created successfully"
+          },
+          "422": {
+            "description": "Invalid user account"
           }
         }
       }
